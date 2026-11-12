@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>복권 랜덤 번호</title>
+<meta name="description" content="연금복권720+, 로또 6/45 비공식 랜덤 번호 생성기. 최신 당첨번호, 내 번호 당첨 확인, 역대 당첨번호 통계.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand">복권 랜덤 <span class="badge">비공식</span></div>
+    <div class="updated" id="updated"></div>
+  </header>
+
+  <!-- 복권 선택 -->
+  <nav class="gameswitch" role="tablist" aria-label="복권 선택">
+    <button role="tab" id="sw-lotto" data-game="lotto" aria-controls="game-lotto" aria-selected="false"><b>로또 6/45</b><small>매주 토요일 20:35 추첨</small></button>
+    <button role="tab" id="sw-pension" data-game="pension" aria-controls="game-pension" aria-selected="true"><b>연금복권720+</b><small>매주 목요일 19:05 추첨</small></button>
+  </nav>
+
+  <!-- =================== 로또 6/45 =================== -->
+  <div id="game-lotto" role="tabpanel" aria-labelledby="sw-lotto" hidden>
+    <section class="card" id="l-latest" aria-label="로또 최신 당첨번호"></section>
+
+    <nav class="tabs" aria-label="로또 메뉴">
+      <div class="tabs-inner" role="tablist" id="l-tabs">
+        <button role="tab" data-tab="gen" aria-controls="l-panel-gen" aria-selected="true">번호 뽑기</button>
+        <button role="tab" data-tab="saved" aria-controls="l-panel-saved" aria-selected="false">내 번호<span class="count" id="l-savedCount" hidden></span></button>
+        <button role="tab" data-tab="draws" aria-controls="l-panel-draws" aria-selected="false">당첨번호·통계</button>
+      </div>
+    </nav>
+
+    <section id="l-panel-gen" role="tabpanel">
+      <div class="card">
+        <div class="opt">
+          <div class="name">몇 게임 뽑을까요?<small>5게임 = 용지 1장</small></div>
+          <div class="seg" id="l-countSeg">
+            <button aria-pressed="false" data-v="1">1게임</button>
+            <button aria-pressed="true" data-v="5">5게임</button>
+            <button aria-pressed="false" data-v="10">10게임</button>
+          </div>
+        </div>
+        <details class="adv">
+          <summary>넣을 번호·뺄 번호 고르기 <span class="state" id="l-pickState">선택 사항</span></summary>
+          <div class="adv-body">
+            <div class="picker-legend"><span><i style="background:var(--accent)"></i>한 번 누르면 꼭 넣기 (최대 5개)</span><span><i style="background:var(--surface-3)"></i>두 번 누르면 빼기</span></div>
+            <div class="picker" id="l-picker"></div>
+            <p class="pick-summary" id="l-pickSummary"></p>
+            <button class="linkbtn" id="l-pickClear" type="button">모두 지우기</button>
+          </div>
+        </details>
+        <button class="btn primary" id="l-genBtn">번호 뽑기</button>
+      </div>
+
+      <div class="card section-gap" id="l-resultCard" hidden>
+        <div class="results-head">
+          <h3>뽑은 번호</h3>
+          <div class="results-actions">
+            <button class="btn ghost" id="l-copyAllBtn">전체 복사</button>
+            <button class="btn ghost" id="l-saveAllBtn">전체 저장</button>
+          </div>
+        </div>
+        <div class="tickets" id="l-tickets" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="l-panel-saved" role="tabpanel" hidden>
+      <div class="card">
+        <div class="results-head">
+          <div><h3>내 로또 번호</h3><p class="sub" style="margin:0" id="l-savedSub"></p></div>
+          <button class="btn ghost" id="l-clearSaved">전체 삭제</button>
+        </div>
+        <div class="summary" id="l-savedSummary"></div>
+        <div class="tickets" id="l-savedList"></div>
+      </div>
+    </section>
+
+    <section id="l-panel-draws" role="tabpanel" hidden>
+      <div class="card">
+        <div class="results-head">
+          <h3>회차별 당첨번호</h3>
+          <form class="search" id="l-searchForm">
+            <input id="l-searchInput" class="mono" inputmode="numeric" placeholder="회차" aria-label="로또 회차 검색">
+            <button class="btn ghost" type="submit">찾기</button>
+          </form>
+        </div>
+        <table class="draws" id="l-drawTable"></table>
+        <div class="morebar"><button class="btn" id="l-moreBtn">더 보기</button></div>
+      </div>
+
+      <div class="card section-gap">
+        <h2>로또 당첨번호에 규칙이 있을까?</h2>
+        <p class="sub" id="l-statsRange"></p>
+        <div class="verdict" id="l-verdict"></div>
+        <div class="facts" id="l-facts"></div>
+      </div>
+
+      <div class="card">
+        <h3>번호별로 나온 횟수</h3>
+        <p class="sub" style="margin-bottom:12px">1~45 각 번호가 1등 번호로 나온 횟수 (보너스 제외)</p>
+        <div class="legend"><span><i class="sw-bar"></i>실제 나온 횟수</span><span><i class="sw-exp"></i>완전 무작위일 때 평균</span></div>
+        <div class="chart" id="l-chartFreq"></div>
+        <p class="chart-note">막대가 점선 근처에서 오르내리면 무작위와 같다는 뜻입니다. 많이 나온 번호가 앞으로도 잘 나오는 것은 아닙니다.</p>
+        <details class="tbl"><summary>숫자로 보기</summary><div id="l-tblFreq"></div></details>
+      </div>
+
+      <div class="card">
+        <h3>번호대별 분포</h3>
+        <p class="sub" style="margin-bottom:12px">41~45는 번호가 5개뿐이라 원래 절반 정도만 나옵니다</p>
+        <div class="legend"><span><i class="sw-bar"></i>실제 나온 횟수</span><span><i class="sw-exp"></i>완전 무작위일 때 평균</span></div>
+        <div class="chart" id="l-chartRange"></div>
+        <details class="tbl"><summary>숫자로 보기</summary><div id="l-tblRange"></div></details>
+      </div>
+
+      <div class="card">
+        <h3>6개 번호를 더한 값</h3>
+        <p class="sub" style="margin-bottom:12px">가운데(138 근처)가 많은 건 그런 조합이 원래 많아서입니다</p>
+        <div class="legend"><span><i class="sw-bar"></i>실제 나온 횟수</span><span><i class="sw-exp"></i>완전 무작위일 때 평균</span></div>
+        <div class="chart" id="l-chartSum"></div>
+        <details class="tbl"><summary>숫자로 보기</summary><div id="l-tblSum"></div></details>
+      </div>
+
+      <div class="card">
+        <h3>홀수가 몇 개 들어 있었나</h3>
+        <p class="sub" style="margin-bottom:12px">6개 번호 중 홀수의 개수</p>
+        <div class="legend"><span><i class="sw-bar"></i>실제 나온 횟수</span><span><i class="sw-exp"></i>완전 무작위일 때 평균</span></div>
+        <div class="chart" id="l-chartOdd"></div>
+        <details class="tbl"><summary>숫자로 보기</summary><div id="l-tblOdd"></div></details>
+      </div>
+    </section>
+  </div>
+
+  <!-- =================== 연금복권720+ =================== -->
+  <div id="game-pension" role="tabpanel" aria-labelledby="sw-pension" hidden>
+    <section class="card" id="p-latest" aria-label="연금복권 최신 당첨번호"></section>
+
+    <nav class="tabs" aria-label="연금복권 메뉴">
+      <div class="tabs-inner" role="tablist" id="p-tabs">
+        <button role="tab" data-tab="gen" aria-controls="p-panel-gen" aria-selected="true">번호 뽑기</button>
+        <button role="tab" data-tab="saved" aria-controls="p-panel-saved" aria-selected="false">내 번호<span class="count" id="p-savedCount" hidden></span></button>
+        <button role="tab" data-tab="draws" aria-controls="p-panel-draws" aria-selected="false">당첨번호·통계</button>
+      </div>
+    </nav>
+
+    <section id="p-panel-gen" role="tabpanel">
+      <div class="card">
+        <div class="opt">
+          <div class="name">몇 장 뽑을까요?</div>
+          <div class="seg" id="p-countSeg">
+            <button aria-pressed="false" data-v="1">1장</button>
+            <button aria-pressed="false" data-v="3">3장</button>
+            <button aria-pressed="true" data-v="5">5장</button>
+            <button aria-pressed="false" data-v="10">10장</button>
+          </div>
+        </div>
+        <div class="opt">
+          <div class="name">조<small>1조~5조 중 하나</small></div>
+          <div class="seg" id="p-groupSeg">
+            <button aria-pressed="true" data-v="0">랜덤</button>
+            <button aria-pressed="false" data-v="1">1</button>
+            <button aria-pressed="false" data-v="2">2</button>
+            <button aria-pressed="false" data-v="3">3</button>
+            <button aria-pressed="false" data-v="4">4</button>
+            <button aria-pressed="false" data-v="5">5</button>
+          </div>
+        </div>
+        <details class="adv">
+          <summary>원하는 숫자 넣기 <span class="state" id="p-fixState">선택 사항</span></summary>
+          <div class="adv-body">
+            <div class="fixrow" id="p-fixRow"></div>
+            <p class="sub">숫자를 넣은 자리는 고정되고, 빈 자리만 랜덤으로 뽑습니다.</p>
+            <button class="linkbtn" id="p-fixClear" type="button">모두 지우기</button>
+          </div>
+        </details>
+        <button class="btn primary" id="p-genBtn">번호 뽑기</button>
+      </div>
+
+      <div class="card section-gap" id="p-resultCard" hidden>
+        <div class="results-head">
+          <h3>뽑은 번호</h3>
+          <div class="results-actions">
+            <button class="btn ghost" id="p-copyAllBtn">전체 복사</button>
+            <button class="btn ghost" id="p-saveAllBtn">전체 저장</button>
+          </div>
+        </div>
+        <div class="tickets" id="p-tickets" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="p-panel-saved" role="tabpanel" hidden>
+      <div class="card">
+        <div class="results-head">
+          <div><h3>내 연금복권 번호</h3><p class="sub" style="margin:0" id="p-savedSub"></p></div>
+          <button class="btn ghost" id="p-clearSaved">전체 삭제</button>
+        </div>
+        <div class="summary" id="p-savedSummary"></div>
+        <div class="tickets" id="p-savedList"></div>
+      </div>
+    </section>
+
+    <section id="p-panel-draws" role="tabpanel" hidden>
+      <div class="card">
+        <div class="results-head">
+          <h3>회차별 당첨번호</h3>
+          <form class="search" id="p-searchForm">
+            <input id="p-searchInput" class="mono" inputmode="numeric" placeholder="회차" aria-label="연금복권 회차 검색">
+            <button class="btn ghost" type="submit">찾기</button>
+          </form>
+        </div>
+        <table class="draws" id="p-drawTable"></table>
+        <div class="morebar"><button class="btn" id="p-moreBtn">더 보기</button></div>
+      </div>
+
+      <div class="card section-gap">
+        <h2>연금복권 당첨번호에 규칙이 있을까?</h2>
+        <p class="sub" id="p-statsRange"></p>
+        <div class="verdict" id="p-verdict"></div>
+        <div class="facts" id="p-facts"></div>
+      </div>
+
+      <div class="card">
+        <div class="chart-head">
+          <div><h3>자리별로 나온 숫자</h3><p class="sub">자리를 골라 0~9가 몇 번씩 나왔는지 보세요</p></div>
+          <div class="seg" id="p-posSeg"></div>
+        </div>
+        <div class="legend"><span><i class="sw-bar"></i>실제 나온 횟수</span><span><i class="sw-exp"></i>완전 무작위일 때 평균</span></div>
+        <div class="chart" id="p-chartDigit"></div>
+        <p class="chart-note">막대가 점선 근처에서 오르내리면 무작위와 같다는 뜻입니다.</p>
+        <details class="tbl"><summary>숫자로 보기</summary><div id="p-tblDigit"></div></details>
+      </div>
+
+      <div class="card">
+        <h3>6자리 숫자를 더한 값</h3>
+        <p class="sub" style="margin-bottom:12px">예: 194892 → 1+9+4+8+9+2 = 33. 가운데가 많은 건 그런 조합이 원래 많아서입니다.</p>
+        <div class="legend"><span><i class="sw-bar"></i>실제 나온 횟수</span><span><i class="sw-exp"></i>완전 무작위일 때 평균</span></div>
+        <div class="chart" id="p-chartSum"></div>
+        <details class="tbl"><summary>숫자로 보기</summary><div id="p-tblSum"></div></details>
+      </div>
+
+      <div class="card">
+        <h3>홀수가 몇 개 들어 있었나</h3>
+        <p class="sub" style="margin-bottom:12px">6자리 중 홀수(1·3·5·7·9)의 개수</p>
+        <div class="legend"><span><i class="sw-bar"></i>실제 나온 횟수</span><span><i class="sw-exp"></i>완전 무작위일 때 평균</span></div>
+        <div class="chart" id="p-chartOdd"></div>
+        <details class="tbl"><summary>숫자로 보기</summary><div id="p-tblOdd"></div></details>
+      </div>
+
+      <div class="card">
+        <h3>조별 1등 횟수</h3>
+        <p class="sub" style="margin-bottom:12px">1조~5조가 뽑힌 횟수</p>
+        <div class="legend"><span><i class="sw-bar"></i>실제 나온 횟수</span><span><i class="sw-exp"></i>완전 무작위일 때 평균</span></div>
+        <div class="chart" id="p-chartGroup"></div>
+        <details class="tbl"><summary>숫자로 보기</summary><div id="p-tblGroup"></div></details>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <p>동행복권·복권위원회와 무관한 비공식 서비스입니다. 당첨번호는 동행복권 사이트에서 가져오며, 당첨 여부는 반드시 공식 발표로 확인하세요.</p>
+    <p>번호는 브라우저의 암호학적 난수(<span class="mono">crypto.getRandomValues</span>)로 뽑으며, 당첨 확률(로또 1등 1/8,145,060, 연금복권 1등 1/5,000,000)은 어떤 방법으로도 바뀌지 않습니다. 복권은 여유 자금으로만 즐기세요.</p>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="data.js"></script>
+<script src="data_lotto.js"></script>
+<script src="common.js"></script>
+<script src="pension.js"></script>
+<script src="lotto.js"></script>
+<script>
+(() => {
+  // 주소: #lotto, #lotto-stats, #pension, #pension-saved ... (예전 주소 #stats, #saved, #gen 은 연금복권)
+  const sw = [...document.querySelectorAll(".gameswitch button")];
+  const tabAlias = { stats: "draws", draws: "draws", saved: "saved", gen: "gen" };
+  function show(game, tab){
+    sw.forEach(b => { const on = b.dataset.game === game; b.setAttribute("aria-selected", on); document.getElementById(b.getAttribute("aria-controls")).hidden = !on; });
+    const g = GAMES[game];
+    g.tabs.select(tab || g.defaultTab());
+    document.getElementById("updated").innerHTML = g.updated ? `동행복권 기준<br>${U.esc(g.updated)} 갱신` : "";
+    U.sset("game", game);
+  }
+  sw.forEach(b => b.addEventListener("click", () => show(b.dataset.game)));
+  const h = location.hash.slice(1).split("-");
+  let game = U.sget("game") || "lotto", tab;
+  if (GAMES[h[0]]){ game = h[0]; tab = tabAlias[h[1]]; }
+  else if (tabAlias[h[0]]){ game = "pension"; tab = tabAlias[h[0]]; }
+  show(game, tab);
+})();
+</script>
+</body>
+</html>

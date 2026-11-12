@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>연금720 랜덤 번호</title>
+<meta name="description" content="연금복권720+ 비공식 랜덤 번호 생성기. 최신 당첨번호, 내 번호 당첨 확인, 역대 당첨번호 통계.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#f4f3ef; --surface:#ffffff; --surface-2:#f4f3ef; --surface-3:#ebe9e3; --line:#e4e2db;
+  --text:#111110; --text-2:#55544f; --muted:#8a8984;
+  --accent:#2a78d6; --accent-hover:#256abf; --accent-ink:#ffffff; --accent-soft:#e6f0fc; --accent-text:#1c5cab;
+  --bar:#2a78d6; --bar-hover:#1c5cab; --expected:#111110;
+  --win:#0c7a0c; --win-soft:#e3f4e3;
+  --g1:#2a78d6; --g2:#d9541f; --g3:#138a60; --g4:#a86f00; --g5:#6250d6;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.05);
+  --radius:18px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#111110; --surface:#1a1a19; --surface-2:#222220; --surface-3:#2b2b28; --line:#31312e;
+    --text:#f0efec; --text-2:#c3c2b7; --muted:#8f8e86;
+    --accent:#3987e5; --accent-hover:#5598e7; --accent-ink:#ffffff; --accent-soft:#16304f; --accent-text:#86b6ef;
+    --bar:#3987e5; --bar-hover:#86b6ef; --expected:#f0efec;
+    --win:#4cc24c; --win-soft:#173317;
+    --g1:#3987e5; --g2:#d95926; --g3:#199e70; --g4:#c98500; --g5:#7d70e0;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#111110; --surface:#1a1a19; --surface-2:#222220; --surface-3:#2b2b28; --line:#31312e;
+  --text:#f0efec; --text-2:#c3c2b7; --muted:#8f8e86;
+  --accent:#3987e5; --accent-hover:#5598e7; --accent-ink:#ffffff; --accent-soft:#16304f; --accent-text:#86b6ef;
+  --bar:#3987e5; --bar-hover:#86b6ef; --expected:#f0efec;
+  --win:#4cc24c; --win-soft:#173317;
+  --g1:#3987e5; --g2:#d95926; --g3:#199e70; --g4:#c98500; --g5:#7d70e0;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Noto Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;line-height:1.6;font-size:16px;word-break:keep-all}
+.mono{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;font-variant-numeric:tabular-nums}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+
+/* 상단바 */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 0 16px}
+.brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:20px;letter-spacing:-.02em}
+.badge{font-size:11px;font-weight:700;color:var(--text-2);border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:1px 8px;letter-spacing:0}
+.updated{font-size:12px;color:var(--muted);text-align:right}
+
+/* 카드 */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+.card + .card{margin-top:16px}
+@media (max-width:520px){.card{padding:18px}}
+h2{font-size:20px;margin:0;letter-spacing:-.01em;line-height:1.35}
+h3{font-size:17px;margin:0;line-height:1.4}
+.sub{color:var(--text-2);font-size:14px;margin:4px 0 0}
+.section-gap{margin-top:20px}
+
+/* 최신 당첨번호 */
+.latest-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.latest-top .eyebrow{font-size:13px;font-weight:700;color:var(--accent-text)}
+.latest-top h2{font-size:26px}
+.latest-top h2 .date{font-size:14px;font-weight:400;color:var(--text-2);margin-left:6px}
+.next{background:var(--surface-2);border-radius:12px;padding:8px 12px;font-size:13px;color:var(--text-2);text-align:right;line-height:1.4}
+.next b{display:block;color:var(--text);font-size:15px}
+.prize-row{display:grid;grid-template-columns:120px 1fr;align-items:center;gap:12px;padding:12px 0}
+.prize-row + .prize-row{border-top:1px dashed var(--line)}
+.prize-row .lbl{font-size:14px;font-weight:700}
+.prize-row .lbl small{display:block;font-size:11px;font-weight:400;color:var(--muted)}
+.numline{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
+.gchip{display:inline-flex;align-items:center;justify-content:center;color:#fff;border-radius:10px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.gchip.lg{height:44px;padding:0 12px;font-size:17px}
+.gchip.sm{height:24px;padding:0 8px;font-size:13px;border-radius:6px}
+.gchip.any{background:var(--surface-3);color:var(--text)}
+.ball{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:20px;background:var(--surface-2);border:1px solid var(--line);flex-shrink:0}
+@media (max-width:520px){
+  .prize-row{grid-template-columns:1fr;gap:6px}
+  .prize-row .lbl small{display:inline;margin-left:6px}
+  .ball{width:38px;height:38px;font-size:18px}
+  .gchip.lg{height:38px;font-size:15px;padding:0 10px}
+  .numline{gap:4px}
+}
+@media (max-width:360px){.ball{width:34px;height:34px;font-size:16px}}
+
+/* 탭: 세그먼트 */
+.tabs{position:sticky;top:0;z-index:5;background:var(--bg);padding:16px 0 12px;margin-top:4px}
+.tabs-inner{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface-3);border-radius:14px;padding:4px}
+.tabs button{appearance:none;border:0;background:transparent;border-radius:10px;padding:10px 6px;font-weight:500;color:var(--text-2);cursor:pointer;font-size:15px;min-height:44px}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--text);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.tabs .count{display:inline-block;min-width:20px;font-size:12px;background:var(--accent);color:#fff;border-radius:999px;padding:0 6px;margin-left:4px;line-height:18px}
+
+/* 옵션 */
+.opt{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;flex-wrap:wrap}
+.opt + .opt{border-top:1px solid var(--line)}
+.opt .name{font-weight:700;font-size:15px}
+.opt .name small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:0 14px;cursor:pointer;min-height:40px;min-width:44px;font-size:15px}
+.seg button[aria-pressed="true"]{background:var(--text);color:var(--surface);border-color:var(--text);font-weight:700}
+details.adv{border-top:1px solid var(--line)}
+details.adv summary{list-style:none;cursor:pointer;padding:14px 0;display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px}
+details.adv summary .state{margin-left:auto}
+details.adv summary::-webkit-details-marker{display:none}
+details.adv summary .state{font-weight:400;font-size:13px;color:var(--muted)}
+details.adv summary::after{content:"▾";color:var(--muted);font-size:14px;line-height:1;transition:transform .15s}
+details.adv[open] summary::after{transform:rotate(180deg)}
+.adv-body{padding:0 0 16px}
+.fixrow{display:flex;gap:6px;align-items:flex-end}
+.fixcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+.fixcell span{font-size:11px;color:var(--muted)}
+.fixrow input{width:44px;height:48px;text-align:center;font-family:"JetBrains Mono",monospace;font-weight:800;font-size:20px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--text)}
+.fixrow input:not(:placeholder-shown){border-color:var(--accent);background:var(--accent-soft)}
+.fixrow input::placeholder{color:var(--muted);font-weight:600;font-size:14px}
+.linkbtn{appearance:none;border:0;background:none;color:var(--accent-text);cursor:pointer;font-size:13px;padding:6px 0;margin-top:8px}
+@media (max-width:360px){.fixrow input{width:38px}}
+@media (max-width:520px){.opt .seg button{min-width:40px;padding:0 10px;font-size:14px}.opt .seg{gap:5px}}
+
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:0 16px;cursor:pointer;min-height:44px;font-weight:700;font-size:15px}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{display:block;width:100%;background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-size:18px;min-height:56px;border-radius:14px;margin-top:8px}
+.btn.primary:hover{background:var(--accent-hover)}
+.btn.primary:disabled{opacity:.7;cursor:wait}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--text-2);font-weight:500;font-size:14px;min-height:36px;padding:0 10px}
+.btn.ghost:hover{background:var(--surface-2);color:var(--text)}
+.btn:disabled{cursor:default}
+
+/* 결과 */
+.results-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.results-actions{display:flex;gap:6px}
+.tickets{display:grid;gap:10px}
+.ticket{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface-2)}
+.ticket .idx{font-size:12px;color:var(--muted);width:16px;text-align:center;flex-shrink:0}
+.ticket .numline{flex:1;min-width:0}
+.reel{width:42px;height:52px;border-radius:10px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;font-family:"JetBrains Mono",monospace;font-weight:800;font-size:26px;flex-shrink:0}
+.reel.spinning{color:var(--muted)}
+.reel.landed{animation:land .22s ease-out}
+.reel.fixed{border-color:var(--accent)}
+@keyframes land{0%{transform:translateY(-5px)}100%{transform:none}}
+.ticket .gchip{height:52px;padding:0 10px;font-size:16px}
+.ticket .act{display:flex;gap:2px;flex-shrink:0}
+.ticket .meta{font-size:13px;color:var(--text-2)}
+.result-badge{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:2px 10px;white-space:nowrap}
+.result-badge.win{background:var(--win-soft);color:var(--win)}
+.result-badge.lose{background:var(--surface-3);color:var(--text-2)}
+@media (max-width:560px){
+  .ticket{flex-wrap:wrap;gap:8px 6px}
+  .ticket .idx{display:none}
+  .ticket .numline{flex-basis:100%}
+  .reel{width:auto;flex:1;max-width:46px;height:46px;font-size:22px}
+  .ticket .gchip{height:46px;font-size:14px;padding:0 8px}
+  .ticket .act{margin-left:auto}
+}
+.empty{text-align:center;padding:28px 12px;color:var(--text-2)}
+.empty p{margin:0 0 12px}
+.summary{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.summary .pill{background:var(--surface-2);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--text-2);flex:1;min-width:120px}
+.summary .pill b{display:block;font-size:20px;color:var(--text)}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--surface);padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:.2s;z-index:10}
+.toast.show{opacity:1;transform:translateX(-50%)}
+
+/* 당첨번호 표 */
+.draws{width:100%;border-collapse:collapse;font-size:15px}
+.draws th{font-size:12px;font-weight:500;color:var(--muted);text-align:left;padding:0 6px 8px;border-bottom:1px solid var(--line)}
+.draws td{padding:12px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+.draws tr:last-child td{border-bottom:0}
+.draws .rnd{font-weight:700;white-space:nowrap}
+.draws .rnd small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.draws .digits{font-family:"JetBrains Mono",monospace;font-weight:800;letter-spacing:.14em;font-size:17px}
+.draws .bonus{color:var(--text-2);font-weight:600;font-size:15px}
+.draws .cell1{display:flex;align-items:center;gap:8px}
+.morebar{display:flex;justify-content:center;margin-top:12px}
+.search{display:flex;gap:6px;align-items:center}
+.search input{width:96px;height:36px;border:1px solid var(--line);border-radius:10px;padding:0 10px;background:var(--surface-2);color:var(--text);font:inherit;font-size:14px}
+
+/* 통계 */
+.verdict{display:flex;gap:12px;align-items:center;padding:16px;border-radius:14px;background:var(--win-soft);margin:16px 0}
+.verdict .ic{width:36px;height:36px;border-radius:50%;background:var(--win);color:#fff;display:grid;place-items:center;font-weight:900;flex-shrink:0}
+.verdict b{display:block;font-size:16px}
+.verdict span{font-size:14px;color:var(--text-2)}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.fact{background:var(--surface-2);border-radius:14px;padding:14px}
+.fact .k{font-size:13px;color:var(--text-2)}
+.fact .v{font-size:22px;font-weight:800;line-height:1.3}
+.fact .e{font-size:12px;color:var(--muted)}
+@media (max-width:520px){.facts{gap:6px}.fact{padding:10px}.fact .k{font-size:12px;line-height:1.4}.fact .v{font-size:19px}.fact .e{font-size:11px;line-height:1.4}}
+.chart-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
+.chart-head .seg button{min-height:34px;min-width:36px;padding:0 10px;font-size:14px}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--text-2);align-items:center;flex-wrap:wrap;margin-bottom:4px}
+.legend i{display:inline-block;vertical-align:middle;margin-right:6px}
+.legend .sw-bar{width:10px;height:10px;border-radius:2px;background:var(--bar)}
+.legend .sw-exp{width:18px;border-top:2px dashed var(--expected)}
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .grid line{stroke:var(--line)}
+.chart .axis text{fill:var(--muted);font-size:11px;font-family:"JetBrains Mono",monospace}
+.chart .axis .xl{fill:var(--text-2);font-size:12px}
+.chart .bar{fill:var(--bar)}
+.chart .bar.on{fill:var(--bar-hover)}
+.chart .exp{fill:none;stroke:var(--expected);stroke-width:2;stroke-dasharray:4 4}
+.chart .hit{fill:transparent;cursor:crosshair}
+.tip{position:absolute;pointer-events:none;background:var(--text);color:var(--surface);font-size:12px;padding:6px 10px;border-radius:8px;white-space:nowrap;transform:translate(-50%,calc(-100% - 10px));opacity:0;transition:opacity .1s;z-index:2}
+.tip.show{opacity:1}
+.tip .t{opacity:.75}
+.chart-note{font-size:13px;color:var(--text-2);margin:8px 0 0}
+details.tbl{margin-top:8px;font-size:13px}
+details.tbl summary{cursor:pointer;color:var(--muted)}
+details.tbl table{border-collapse:collapse;margin-top:8px;width:100%;font-variant-numeric:tabular-nums}
+details.tbl th,details.tbl td{border-bottom:1px solid var(--line);padding:4px 8px;text-align:right}
+details.tbl th:first-child,details.tbl td:first-child{text-align:left}
+
+footer{padding:32px 0 48px;color:var(--muted);font-size:12px;line-height:1.7}
+footer p{margin:2px 0}
+@media (prefers-reduced-motion: reduce){.reel.landed{animation:none}.toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand">연금720 랜덤 <span class="badge">비공식</span></div>
+    <div class="updated" id="updated"></div>
+  </header>
+
+  <!-- 최신 당첨번호 -->
+  <section class="card" id="latest" aria-label="최신 당첨번호"></section>
+
+  <!-- 탭 -->
+  <nav class="tabs" aria-label="메뉴">
+    <div class="tabs-inner" role="tablist">
+      <button role="tab" id="tab-gen" aria-controls="panel-gen" aria-selected="true">번호 뽑기</button>
+      <button role="tab" id="tab-saved" aria-controls="panel-saved" aria-selected="false">내 번호<span class="count" id="savedCount" hidden></span></button>
+      <button role="tab" id="tab-draws" aria-controls="panel-draws" aria-selected="false">당첨번호·통계</button>
+    </div>
+  </nav>
+
+  <!-- 번호 뽑기 -->
+  <section id="panel-gen" role="tabpanel" aria-labelledby="tab-gen">
+    <div class="card">
+      <div class="opt">
+        <div class="name">몇 장 뽑을까요?</div>
+        <div class="seg" id="countSeg">
+          <button aria-pressed="false" data-v="1">1장</button>
+          <button aria-pressed="false" data-v="3">3장</button>
+          <button aria-pressed="true" data-v="5">5장</button>
+          <button aria-pressed="false" data-v="10">10장</button>
+        </div>
+      </div>
+      <div class="opt">
+        <div class="name">조<small>1조~5조 중 하나</small></div>
+        <div class="seg" id="groupSeg">
+          <button aria-pressed="true" data-v="0">랜덤</button>
+          <button aria-pressed="false" data-v="1">1</button>
+          <button aria-pressed="false" data-v="2">2</button>
+          <button aria-pressed="false" data-v="3">3</button>
+          <button aria-pressed="false" data-v="4">4</button>
+          <button aria-pressed="false" data-v="5">5</button>
+        </div>
+      </div>
+      <details class="adv" id="adv">
+        <summary>원하는 숫자 넣기 <span class="state" id="fixState">선택 사항</span></summary>
+        <div class="adv-body">
+          <div class="fixrow" id="fixRow"></div>
+          <p class="sub">숫자를 넣은 자리는 고정되고, 빈 자리만 랜덤으로 뽑습니다.</p>
+          <button class="linkbtn" id="fixClear" type="button">모두 지우기</button>
+        </div>
+      </details>
+      <button class="btn primary" id="genBtn">번호 뽑기</button>
+    </div>
+
+    <div class="card section-gap" id="resultCard" hidden>
+      <div class="results-head">
+        <h3>뽑은 번호</h3>
+        <div class="results-actions">
+          <button class="btn ghost" id="copyAllBtn">전체 복사</button>
+          <button class="btn ghost" id="saveAllBtn">전체 저장</button>
+        </div>
+      </div>
+      <div class="tickets" id="tickets" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- 내 번호 -->
+  <section id="panel-saved" role="tabpanel" aria-labelledby="tab-saved" hidden>
+    <div class="card">
+      <div class="results-head">
+        <div><h3>내 번호</h3><p class="sub" style="margin:0" id="savedSub"></p></div>
+        <button class="btn ghost" id="clearSaved">전체 삭제</button>
+      </div>
+      <div class="summary" id="savedSummary"></div>
+      <div class="tickets" id="savedList"></div>
+    </div>
+  </section>
+
+  <!-- 당첨번호·통계 -->
+  <section id="panel-draws" role="tabpanel" aria-labelledby="tab-draws" hidden>
+    <div class="card">
+      <div class="results-head">
+        <h3>회차별 당첨번호</h3>
+        <form class="search" id="searchForm">
+          <input id="searchInput" class="mono" inputmode="numeric" placeholder="회차" aria-label="회차 검색">
+          <button class="btn ghost" type="submit">찾기</button>
+        </form>
+      </div>
+      <table class="draws" id="drawTable"></table>
+      <div class="morebar"><button class="btn" id="moreBtn">더 보기</button></div>
+    </div>
+
+    <div class="card section-gap">
+      <h2>당첨번호에 규칙이 있을까?</h2>
+      <p class="sub" id="statsRange"></p>
+      <div class="verdict" id="verdict"></div>
+      <div class="facts" id="facts"></div>
+    </div>
+
+    <div class="card">
+      <div class="chart-head">
+        <div><h3>자리별로 나온 숫자</h3><p class="sub">자리를 골라 0~9가 몇 번씩 나왔는지 보세요</p></div>
+        <div class="seg" id="posSeg"></div>
+      </div>
+      <div class="legend"><span><i class="sw-bar"></i>실제 나온 횟수</span><span><i class="sw-exp"></i>완전 무작위일 때 평균</span></div>
+      <div class="chart" id="chartDigit"></div>
+      <p class="chart-note">막대가 점선 근처에서 오르내리면 무작위와 같다는 뜻입니다.</p>
+      <details class="tbl"><summary>숫자로 보기</summary><div id="tblDigit"></div></details>
+    </div>
+
+    <div class="card">
+      <h3>6자리 숫자를 더한 값</h3>
+      <p class="sub" style="margin-bottom:12px">예: 194892 → 1+9+4+8+9+2 = 33. 가운데가 많은 건 그런 조합이 원래 많아서입니다.</p>
+      <div class="legend"><span><i class="sw-bar"></i>실제 나온 횟수</span><span><i class="sw-exp"></i>완전 무작위일 때 평균</span></div>
+      <div class="chart" id="chartSum"></div>
+      <details class="tbl"><summary>숫자로 보기</summary><div id="tblSum"></div></details>
+    </div>
+
+    <div class="card">
+      <h3>홀수가 몇 개 들어 있었나</h3>
+      <p class="sub" style="margin-bottom:12px">6자리 중 홀수(1·3·5·7·9)의 개수</p>
+      <div class="legend"><span><i class="sw-bar"></i>실제 나온 횟수</span><span><i class="sw-exp"></i>완전 무작위일 때 평균</span></div>
+      <div class="chart" id="chartOdd"></div>
+      <details class="tbl"><summary>숫자로 보기</summary><div id="tblOdd"></div></details>
+    </div>
+
+    <div class="card">
+      <h3>조별 1등 횟수</h3>
+      <p class="sub" style="margin-bottom:12px">1조~5조가 뽑힌 횟수</p>
+      <div class="legend"><span><i class="sw-bar"></i>실제 나온 횟수</span><span><i class="sw-exp"></i>완전 무작위일 때 평균</span></div>
+      <div class="chart" id="chartGroup"></div>
+      <details class="tbl"><summary>숫자로 보기</summary><div id="tblGroup"></div></details>
+    </div>
+  </section>
+
+  <footer>
+    <p>동행복권·복권위원회와 무관한 비공식 서비스입니다. 당첨 여부는 반드시 공식 발표로 확인하세요.</p>
+    <p>번호는 브라우저의 암호학적 난수(<span class="mono">crypto.getRandomValues</span>)로 뽑으며, 당첨 확률(1등 1/5,000,000)은 어떤 방법으로도 바뀌지 않습니다. 복권은 여유 자금으로만 즐기세요.</p>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script src="data.js"></script>
+<script>
+(() => {
+"use strict";
+const DRAWS = (window.DRAWS || []).slice().sort((a,b)=>a[0]-b[0]); // [회차, 조, 1등, 추첨일, 보너스]
+const META = window.DRAWS_META || {};
+const N = DRAWS.length;
+const LATEST = DRAWS[N-1];
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const gColor = g => `var(--g${g})`;
+const fmtDate = d => { if (!d) return ""; const [y,m,dd] = d.split("-"); const w = "일월화수목금토"[new Date(d+"T12:00:00+09:00").getDay()]; return `${y}.${m}.${dd}(${w})`; };
+
+/* 난수: crypto + rejection sampling */
+const buf = new Uint8Array(64); let bi = 64;
+function rbyte(){ if (bi >= buf.length){ crypto.getRandomValues(buf); bi = 0; } return buf[bi++]; }
+function randInt(n){ const lim = 256 - (256 % n); let b; do { b = rbyte(); } while (b >= lim); return b % n; }
+
+/* 저장소 */
+const KEY = "pension720.saved.v1";
+function loadSaved(){ try { const v = JSON.parse(localStorage.getItem(KEY) || "[]"); return Array.isArray(v) ? v : []; } catch { return []; } }
+function storeSaved(list){ try { localStorage.setItem(KEY, JSON.stringify(list)); } catch {} }
+let saved = loadSaved();
+
+let toastT;
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),1600); }
+async function copy(text){ try { await navigator.clipboard.writeText(text); toast("복사했습니다"); } catch { toast("복사하지 못했습니다"); } }
+const fmtTicket = t => `${t.g}조 ${t.n}`;
+
+/* 등수: 1등 조+6자리, 2등 6자리(조 다름), 3~7등 끝 5~1자리, 보너스 6자리(조 무관) */
+function rank(t, draw){
+  const [, g, n, , bonus] = draw;
+  if (t.n === n) return t.g === g ? "1등" : "2등";
+  if (bonus && t.n === bonus) return "보너스";
+  for (let k = 5; k >= 1; k--) if (t.n.slice(6-k) === n.slice(6-k)) return (8 - k) + "등";
+  return "";
+}
+
+/* ---------- 최신 당첨번호 ---------- */
+function renderLatest(){
+  const box = $("#latest");
+  if (!LATEST){ box.innerHTML = `<p class="sub">당첨번호 데이터를 불러오지 못했습니다.</p>`; return; }
+  const [r, g, n, date, bonus] = LATEST;
+  const balls = s => s.split("").map(d => `<span class="ball mono">${d}</span>`).join("");
+  let next = "";
+  if (date){
+    const nx = new Date(date + "T19:05:00+09:00"); nx.setDate(nx.getDate() + 7);
+    const kst = d => new Date(d.getTime() + 9*3600e3).toISOString().slice(0,10);
+    const days = Math.round((new Date(kst(nx)) - new Date(kst(new Date()))) / 864e5);
+    const when = Date.now() >= nx.getTime() ? "결과 집계 중" : days === 0 ? "오늘 19:05" : days === 1 ? "내일 19:05" : `D-${days}`;
+    next = `<div class="next">다음 ${r+1}회 추첨<b>${when}</b></div>`;
+  }
+  box.innerHTML = `
+    <div class="latest-top">
+      <div><div class="eyebrow">최신 당첨번호</div><h2><span class="mono">${r}</span>회<span class="date">${fmtDate(date)}</span></h2></div>
+      ${next}
+    </div>
+    <div class="prize-row"><div class="lbl">1등<small>월 700만원 × 20년</small></div>
+      <div class="numline" aria-label="1등 ${g}조 ${n}"><span class="gchip lg" style="background:${gColor(g)}">${g}조</span>${balls(n)}</div></div>
+    ${bonus ? `<div class="prize-row"><div class="lbl">보너스<small>월 100만원 × 10년</small></div>
+      <div class="numline" aria-label="보너스 각 조 ${bonus}"><span class="gchip lg any">각조</span>${balls(bonus)}</div></div>` : ""}`;
+}
+
+/* ---------- 탭 ---------- */
+const tabs = [...document.querySelectorAll('.tabs button')];
+let statsDrawn = false;
+function selectTab(btn, scroll){
+  tabs.forEach(b => { const on = b === btn; b.setAttribute("aria-selected", on); $("#"+b.getAttribute("aria-controls")).hidden = !on; });
+  if (btn.id === "tab-draws" && !statsDrawn){ drawStats(); statsDrawn = true; }
+  if (btn.id === "tab-saved") renderSaved();
+  try { sessionStorage.setItem("pension720.tab", btn.id); } catch {}
+  if (scroll){ const top = $(".tabs").offsetTop; if (window.scrollY > top) window.scrollTo({ top, behavior: "smooth" }); }
+}
+tabs.forEach(b => b.addEventListener("click", () => selectTab(b, true)));
+
+/* ---------- 번호 뽑기 ---------- */
+function segValue(id){ return +document.querySelector(`#${id} [aria-pressed="true"]`).dataset.v; }
+function bindSeg(id, onChange){
+  const el = $("#"+id);
+  el.addEventListener("click", e => { const b = e.target.closest("button"); if(!b) return;
+    el.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); onChange && onChange(+b.dataset.v); });
+}
+bindSeg("countSeg"); bindSeg("groupSeg");
+
+const fixRow = $("#fixRow");
+for (let i=0;i<6;i++){
+  const cell = document.createElement("label"); cell.className = "fixcell";
+  cell.innerHTML = `<input id="fix${i}" inputmode="numeric" maxlength="1" autocomplete="off" placeholder="?" aria-label="${i+1}번째 자리 숫자"><span>${i+1}번째</span>`;
+  fixRow.appendChild(cell);
+  const inp = cell.querySelector("input");
+  inp.addEventListener("input", () => { inp.value = inp.value.replace(/\D/g,"").slice(0,1); if (inp.value && i<5) $("#fix"+(i+1)).focus(); updateFixState(); });
+  inp.addEventListener("keydown", e => { if (e.key==="Backspace" && !inp.value && i>0) $("#fix"+(i-1)).focus(); });
+}
+function fixedPattern(){ return [...Array(6).keys()].map(i => $("#fix"+i).value); }
+function updateFixState(){
+  const p = fixedPattern(), any = p.some(v => v !== "");
+  $("#fixState").textContent = any ? p.map(v => v || "?").join("") : "선택 사항";
+  $("#fixState").classList.toggle("mono", any);
+}
+$("#fixClear").onclick = () => { for (let i=0;i<6;i++) $("#fix"+i).value = ""; updateFixState(); };
+
+function makeTicket(){
+  const g = segValue("groupSeg") || randInt(5) + 1;
+  const p = fixedPattern();
+  return { g, n: p.map(v => v !== "" ? v : String(randInt(10))).join(""), fixed: p.map(v => v !== "") };
+}
+
+function ticketEl(t, idx, { animate=false, mode="new" } = {}){
+  const row = document.createElement("div");
+  row.className = "ticket";
+  const reels = t.n.split("").map((d,i) => `<span class="reel${t.fixed && t.fixed[i] ? " fixed" : ""}" data-i="${i}">${animate && !(t.fixed && t.fixed[i]) ? "0" : d}</span>`).join("");
+  let meta = "";
+  if (mode === "saved" && LATEST){
+    const r = rank(t, LATEST);
+    meta = `<span class="result-badge ${r ? "win" : "lose"}">${LATEST[0]}회 ${r ? r + " 당첨" : "미당첨"}</span>`;
+  }
+  row.innerHTML = `<span class="idx mono">${idx+1}</span>
+    <div class="numline" aria-label="${esc(fmtTicket(t))}"><span class="gchip" style="background:${gColor(t.g)}">${t.g}조</span>${reels}</div>
+    ${meta}
+    <div class="act">
+      <button class="btn ghost" data-act="copy">복사</button>
+      ${mode==="saved" ? `<button class="btn ghost" data-act="del">삭제</button>` : `<button class="btn ghost" data-act="save">저장</button>`}
+    </div>`;
+  row.querySelector('[data-act="copy"]').onclick = () => copy(fmtTicket(t));
+  const sb = row.querySelector('[data-act="save"]');
+  if (sb) sb.onclick = () => { addSaved([t]); markSaved(sb); };
+  const db = row.querySelector('[data-act="del"]');
+  if (db) db.onclick = () => { saved = saved.filter(s => s.id !== t.id); storeSaved(saved); renderSaved(); updateCount(); };
+  return row;
+}
+const markSaved = b => { b.textContent = "저장됨"; b.disabled = true; };
+
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function spin(rowEls, tickets){
+  return new Promise(resolve => {
+    const reels = rowEls.map(r => [...r.querySelectorAll(".reel")]);
+    const finish = () => { reels.forEach((rs,k) => rs.forEach((el,i) => { if (el.classList.contains("spinning")){ el.textContent = tickets[k].n[i]; el.classList.remove("spinning"); } })); resolve(); };
+    if (reduceMotion) return (reels.forEach((rs,k) => rs.forEach((el,i) => el.textContent = tickets[k].n[i])), resolve());
+    reels.forEach((rs,k) => rs.forEach((el,i) => { if (!(tickets[k].fixed && tickets[k].fixed[i])) el.classList.add("spinning"); }));
+    const start = performance.now(), base = 400, step = 130, rowLag = 50; let last = 0;
+    function frame(now){
+      const t = now - start; let pending = false;
+      if (now - last > 50){ last = now;
+        reels.forEach((rs,k) => rs.forEach((el,i) => {
+          if (!el.classList.contains("spinning")) return;
+          if (t >= base + i*step + k*rowLag){ el.textContent = tickets[k].n[i]; el.classList.remove("spinning"); el.classList.add("landed"); }
+          else el.textContent = Math.floor(Math.random()*10); // 연출용
+        }));
+      }
+      reels.forEach(rs => rs.forEach(el => { if (el.classList.contains("spinning")) pending = true; }));
+      pending ? requestAnimationFrame(frame) : resolve();
+    }
+    requestAnimationFrame(frame);
+    setTimeout(finish, 3000); // 백그라운드 탭에서도 결과는 반드시 표시
+  });
+}
+
+let current = [];
+$("#genBtn").addEventListener("click", async () => {
+  const btn = $("#genBtn"); btn.disabled = true; btn.textContent = "뽑는 중…";
+  current = Array.from({length: segValue("countSeg")}, makeTicket);
+  $("#resultCard").hidden = false;
+  const box = $("#tickets"); box.innerHTML = "";
+  const rows = current.map((t,i) => { const r = ticketEl(t,i,{animate:true}); box.appendChild(r); return r; });
+  const rc = $("#resultCard").getBoundingClientRect();
+  if (rc.top > window.innerHeight - 120) $("#resultCard").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  await spin(rows, current);
+  btn.disabled = false; btn.textContent = "다시 뽑기";
+  const sa = $("#saveAllBtn"); sa.disabled = false; sa.textContent = "전체 저장";
+});
+$("#copyAllBtn").onclick = () => copy(current.map(fmtTicket).join("\n"));
+$("#saveAllBtn").onclick = () => {
+  const btns = [...document.querySelectorAll('#tickets [data-act="save"]')];
+  const left = current.filter((t,i) => !btns[i].disabled);
+  if (left.length) addSaved(left);
+  btns.forEach(markSaved); markSaved($("#saveAllBtn"));
+};
+
+function addSaved(list){
+  const now = Date.now();
+  list.slice().reverse().forEach((t,i) => saved.unshift({ id: `${now}-${i}-${randInt(250)}`, g: t.g, n: t.n, at: now }));
+  saved = saved.slice(0, 200); storeSaved(saved); updateCount(); toast(`${list.length}장 저장했습니다`);
+}
+function updateCount(){ const c = $("#savedCount"); c.textContent = saved.length; c.hidden = !saved.length; }
+function renderSaved(){
+  const box = $("#savedList"), sum = $("#savedSummary"); box.innerHTML = "";
+  $("#clearSaved").hidden = !saved.length;
+  if (!saved.length){
+    sum.innerHTML = ""; $("#savedSub").textContent = "";
+    box.innerHTML = `<div class="empty"><p>아직 저장한 번호가 없습니다.</p><button class="btn" id="goGen">번호 뽑으러 가기</button></div>`;
+    $("#goGen").onclick = () => selectTab($("#tab-gen"), true);
+    return;
+  }
+  $("#savedSub").textContent = `${LATEST[0]}회 당첨번호와 자동으로 맞춰 봅니다. 이 브라우저에만 저장됩니다.`;
+  const wins = saved.map(t => rank(t, LATEST)).filter(Boolean);
+  const best = wins.length ? wins.sort((a,b) => (parseInt(a)||1.5) - (parseInt(b)||1.5))[0] : "-";
+  sum.innerHTML = `<div class="pill">저장한 번호<b class="mono">${saved.length}장</b></div>
+    <div class="pill">${LATEST[0]}회 당첨<b class="mono">${wins.length}장</b></div>
+    <div class="pill">가장 높은 등수<b>${best}</b></div>`;
+  saved.forEach((t,i) => box.appendChild(ticketEl(t,i,{mode:"saved"})));
+}
+$("#clearSaved").onclick = () => { if (saved.length && confirm("저장한 번호를 모두 삭제할까요?")){ saved = []; storeSaved(saved); renderSaved(); updateCount(); } };
+
+/* ---------- 회차별 당첨번호 ---------- */
+let shown = 10;
+function drawRow(d){
+  return `<tr><td class="rnd"><span class="mono">${d[0]}</span>회<small>${fmtDate(d[3])}</small></td>
+    <td><div class="cell1"><span class="gchip sm" style="background:${gColor(d[1])}">${d[1]}조</span><span class="digits">${d[2]}</span></div></td>
+    <td class="digits bonus">${d[4] || "-"}</td></tr>`;
+}
+function renderDraws(list){
+  $("#drawTable").innerHTML = `<thead><tr><th>회차</th><th>1등</th><th>보너스</th></tr></thead><tbody>${list.map(drawRow).join("")}</tbody>`;
+}
+function showRecent(){ renderDraws(DRAWS.slice(-shown).reverse()); $("#moreBtn").hidden = shown >= N; }
+$("#moreBtn").onclick = () => { shown += 20; showRecent(); };
+$("#searchForm").onsubmit = e => {
+  e.preventDefault();
+  const v = parseInt($("#searchInput").value, 10);
+  if (!v){ shown = 10; showRecent(); return; }
+  const d = DRAWS.find(x => x[0] === v);
+  if (!d){ toast(`${v}회는 없습니다 (1~${LATEST[0]}회)`); return; }
+  renderDraws([d]); $("#moreBtn").hidden = false; $("#moreBtn").textContent = "최근 회차 보기";
+  $("#moreBtn").onclick = () => { $("#moreBtn").textContent = "더 보기"; $("#moreBtn").onclick = () => { shown += 20; showRecent(); }; shown = 10; showRecent(); $("#searchInput").value = ""; };
+};
+
+/* ---------- 차트 ---------- */
+function barChart(el, { labels, values, expected, xTitle="" }){
+  const draw = () => {
+    const W = Math.max(280, el.clientWidth), H = W < 520 ? 190 : 220;
+    const m = { t: 12, r: 6, b: 28, l: 30 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const maxV = Math.max(...values, ...expected);
+    const nice = maxV <= 10 ? 2 : maxV <= 50 ? 10 : maxV <= 100 ? 20 : 50;
+    const top = Math.ceil(maxV * 1.08 / nice) * nice;
+    const y = v => m.t + ih - v / top * ih;
+    const band = iw / labels.length, bw = Math.min(24, band * 0.62);
+    const cx = i => m.l + band * i + band / 2;
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(xTitle)} 막대 차트"><g class="grid axis">`;
+    for (let v = 0; v <= top; v += nice) s += `<line x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}" stroke-width="${v===0?1:0.6}"/><text x="${m.l-6}" y="${y(v)+4}" text-anchor="end">${v}</text>`;
+    s += `</g><g class="axis">`;
+    const every = labels.length > 8 && W < 420 ? 2 : 1;
+    labels.forEach((l,i) => { if (i % every === 0) s += `<text class="xl" x="${cx(i)}" y="${H-8}" text-anchor="middle">${esc(l)}</text>`; });
+    s += `</g><g>`;
+    values.forEach((v,i) => {
+      const x = cx(i) - bw/2, yy = y(v), h = m.t + ih - yy, r = Math.min(4, bw/2, h);
+      const path = h <= 0 ? "" : `M${x},${m.t+ih} V${yy+r} Q${x},${yy} ${x+r},${yy} H${x+bw-r} Q${x+bw},${yy} ${x+bw},${yy+r} V${m.t+ih} Z`;
+      s += `<path class="bar" data-i="${i}" d="${path}"/>`;
+    });
+    let d = ""; expected.forEach((e,i) => { d += `M${m.l + band*i + band*0.1},${y(e)} H${m.l + band*(i+1) - band*0.1} `; });
+    s += `</g><path class="exp" d="${d}"/>`;
+    values.forEach((v,i) => { s += `<rect class="hit" data-i="${i}" x="${m.l+band*i}" y="${m.t}" width="${band}" height="${ih}"/>`; });
+    s += `</svg><div class="tip"></div>`;
+    el.innerHTML = s;
+    const tip = el.querySelector(".tip"), bars = el.querySelectorAll(".bar");
+    const hide = () => { tip.classList.remove("show"); bars.forEach(b=>b.classList.remove("on")); };
+    el.querySelectorAll(".hit").forEach(h => {
+      const i = +h.dataset.i;
+      const show = () => {
+        bars.forEach(b => b.classList.toggle("on", +b.dataset.i === i));
+        const diff = values[i] - expected[i];
+        tip.innerHTML = `<b>${esc(labels[i])}</b> · ${values[i]}회 <span class="t">(평균 ${expected[i].toFixed(1)}, ${diff>=0?"+":""}${diff.toFixed(1)})</span>`;
+        const sx = el.clientWidth / W;
+        tip.style.left = Math.max(100, Math.min(el.clientWidth - 100, cx(i) * sx)) + "px";
+        tip.style.top = (y(Math.max(values[i], expected[i])) * sx) + "px";
+        tip.classList.add("show");
+      };
+      h.addEventListener("mouseenter", show); h.addEventListener("touchstart", show, {passive:true}); h.addEventListener("mouseleave", hide);
+    });
+  };
+  draw();
+  if (!el._ro){ let rt; el._ro = new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(() => el._draw && el._draw(), 80); }); el._ro.observe(el); }
+  el._draw = draw;
+}
+function table(el, head, labels, values, expected){
+  el.innerHTML = `<table><thead><tr><th>${head}</th><th>실제</th><th>무작위 평균</th><th>차이</th></tr></thead><tbody>` +
+    labels.map((l,i) => `<tr><td>${esc(l)}</td><td>${values[i]}</td><td>${expected[i].toFixed(1)}</td><td>${values[i]-expected[i]>=0?"+":""}${(values[i]-expected[i]).toFixed(1)}</td></tr>`).join("") + `</tbody></table>`;
+}
+
+/* 카이제곱 p값 */
+function lgamma(z){ const c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+  let x=z,y=z,t=x+5.5; t-=(x+0.5)*Math.log(t); let s=1.000000000190015; for(const k of c) s+=k/++y; return -t+Math.log(2.5066282746310005*s/x); }
+function chi2p(x, k){ const a=k/2, z=x/2; if (z<=0) return 1;
+  if (z < a+1){ let s=1/a, t=s, n=a; for(let i=0;i<500;i++){ n++; t*=z/n; s+=t; if (Math.abs(t)<1e-12*Math.abs(s)) break; } return 1 - s*Math.exp(-z+a*Math.log(z)-lgamma(a)); }
+  let b=z+1-a, c=1e300, d=1/b, h=d; for(let i=1;i<500;i++){ const an=-i*(i-a); b+=2; d=an*d+b; if(!d) d=1e-300; c=b+an/c; if(!c) c=1e-300; d=1/d; const de=d*c; h*=de; if(Math.abs(de-1)<1e-12) break; }
+  return Math.exp(-z+a*Math.log(z)-lgamma(a))*h; }
+function chiTest(obs, exp, minExp=5){
+  const O=[],E=[]; let o=0,e=0;
+  obs.forEach((v,i)=>{ o+=v; e+=exp[i]; if (e>=minExp){ O.push(o); E.push(e); o=0; e=0; } });
+  if (e>0){ O[O.length-1]+=o; E[E.length-1]+=e; }
+  return chi2p(O.reduce((s,v,i)=>s+(v-E[i])**2/E[i],0), O.length-1);
+}
+
+function drawStats(){
+  $("#statsRange").textContent = `1회~${LATEST[0]}회, 총 ${N}번의 추첨을 완전 무작위일 때와 비교했습니다.`;
+  const digits = DRAWS.map(d => d[2].split("").map(Number));
+
+  const posCounts = [0,1,2,3,4,5].map(p => { const c = Array(10).fill(0); digits.forEach(ds => c[ds[p]]++); return c; });
+  $("#posSeg").innerHTML = [1,2,3,4,5,6].map(p => `<button aria-pressed="${p===1}" data-v="${p}" aria-label="${p}번째 자리">${p}</button>`).join("");
+  const drawPos = p => {
+    const labels = [...Array(10).keys()].map(String), exp = Array(10).fill(N/10);
+    barChart($("#chartDigit"), { labels, values: posCounts[p-1], expected: exp, xTitle: `${p}번째 자리 숫자` });
+    table($("#tblDigit"), `${p}번째 자리`, labels, posCounts[p-1], exp);
+  };
+  bindSeg("posSeg", drawPos); drawPos(1);
+
+  let dist = [1]; for (let k=0;k<6;k++){ const nd = Array(dist.length+9).fill(0); dist.forEach((v,i)=>{ for(let j=0;j<10;j++) nd[i+j]+=v; }); dist = nd; }
+  const sums = digits.map(ds => ds.reduce((a,b)=>a+b,0));
+  const bins = [[0,15],[16,19],[20,23],[24,27],[28,31],[32,35],[36,39],[40,54]];
+  const sumLabels = bins.map(([a,b]) => a===0 ? `~${b}` : b===54 ? `${a}~` : `${a}-${b}`);
+  const sumObs = bins.map(([a,b]) => sums.filter(s => s>=a && s<=b).length);
+  const sumExp = bins.map(([a,b]) => { let t=0; for(let s=a;s<=b;s++) t+=dist[s]; return t/1e6*N; });
+  barChart($("#chartSum"), { labels: sumLabels, values: sumObs, expected: sumExp, xTitle: "합계" });
+  table($("#tblSum"), "합계", sumLabels, sumObs, sumExp);
+
+  const comb = (n,k) => { let r=1; for(let i=1;i<=k;i++) r = r*(n-k+i)/i; return r; };
+  const oddObs = Array(7).fill(0); digits.forEach(ds => oddObs[ds.filter(d=>d%2).length]++);
+  const oddExp = [...Array(7).keys()].map(k => comb(6,k)/64*N), oddLabels = [...Array(7).keys()].map(k => `${k}개`);
+  barChart($("#chartOdd"), { labels: oddLabels, values: oddObs, expected: oddExp, xTitle: "홀수 개수" });
+  table($("#tblOdd"), "홀수 개수", oddLabels, oddObs, oddExp);
+
+  const gObs = Array(5).fill(0); DRAWS.forEach(d => gObs[d[1]-1]++);
+  const gExp = Array(5).fill(N/5), gLabels = [1,2,3,4,5].map(g=>`${g}조`);
+  barChart($("#chartGroup"), { labels: gLabels, values: gObs, expected: gExp, xTitle: "조" });
+  table($("#tblGroup"), "조", gLabels, gObs, gExp);
+
+  const ps = [...posCounts.map(c => chiTest(c, Array(10).fill(N/10))), chiTest(sumObs,sumExp), chiTest(oddObs,oddExp), chiTest(gObs,gExp)];
+  const ok = Math.min(...ps) * ps.length >= 0.05; // 여러 번 검사한 만큼 보정
+  $("#verdict").innerHTML = ok
+    ? `<span class="ic">✓</span><div><b>규칙 없음: 무작위와 똑같습니다</b><span>자주 나온 숫자나 오래 안 나온 숫자를 골라도 다음 회차 확률은 같습니다.</span></div>`
+    : `<span class="ic">!</span><div><b>일부 항목이 평균에서 다소 벗어났습니다</b><span>우연일 가능성이 높지만, 회차가 쌓이면 다시 확인해 보세요.</span></div>`;
+  const mean = sums.reduce((a,b)=>a+b,0)/N;
+  const oddRatio = oddObs.reduce((s,v,k)=>s+v*k,0)/(6*N);
+  const dup = N - new Set(DRAWS.map(d=>d[2])).size;
+  $("#facts").innerHTML = [
+    ["숫자 합계 평균", mean.toFixed(1), "무작위라면 27.0"],
+    ["홀수 비율", (oddRatio*100).toFixed(0)+"%", "무작위라면 50%"],
+    ["같은 번호가 또 1등", dup+"번", "무작위라면 거의 0번"],
+  ].map(([k,v,e]) => `<div class="fact"><div class="k">${k}</div><div class="v mono">${v}</div><div class="e">${e}</div></div>`).join("");
+}
+
+/* ---------- 초기화 ---------- */
+renderLatest();
+showRecent();
+$("#updated").innerHTML = META.updatedAt ? `동행복권 기준<br>${esc(META.updatedAt)} 갱신` : "";
+updateCount();
+let startTab = "tab-gen"; try { startTab = sessionStorage.getItem("pension720.tab") || startTab; } catch {}
+const hashTab = { "#gen":"tab-gen", "#saved":"tab-saved", "#stats":"tab-draws", "#draws":"tab-draws" }[location.hash];
+if (hashTab) startTab = hashTab;
+selectTab($("#"+startTab) || tabs[0]);
+})();
+</script>
+</body>
+</html>
