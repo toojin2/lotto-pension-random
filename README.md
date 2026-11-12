@@ -4,7 +4,7 @@
 
 ## 로컬 실행
 ```
-python serve.py        # http://localhost:8720
+python python/serve.py        # http://localhost:8720
 ```
 - 시작할 때 두 복권의 당첨번호를 동행복권에서 받아 갱신합니다.
 - 추첨 시각(로또 토 20:35, 연금 목 19:05)이 지나면 새 회차가 올라올 때까지 30분마다 확인합니다. 그 외에는 6시간에 1번만 확인합니다.
@@ -15,7 +15,7 @@ python serve.py        # http://localhost:8720
 웹에 공개한 사이트(GitHub Pages)는 `serve.py` 없이 GitHub Actions가 당첨번호를 갱신합니다.
 
 - 정해진 시간에 `fetch_draws.py`와 `fetch_lotto.py`를 실행해 동행복권에서 새 회차를 받습니다.
-- 새 회차가 있으면 `data.js`와 `data_lotto.js`를 자동으로 커밋합니다. 커밋되면 Pages가 다시 배포되어 사이트에 반영됩니다.
+- 새 회차가 있으면 `data.js`와 `data_lotto.js`(`js` 폴더)를 자동으로 커밋합니다. 커밋되면 Pages가 다시 배포되어 사이트에 반영됩니다.
 - 새 회차가 없으면 커밋하지 않습니다.
 
 | 실행 시각 (KST) | 대상 |
@@ -33,14 +33,16 @@ python serve.py        # http://localhost:8720
 | 파일 | 역할 |
 |---|---|
 | `index.html` | 화면 구조 (복권 전환 + 복권별 탭 3개) |
-| `style.css` | 스타일 (라이트/다크) |
-| `common.js` | 난수, 저장, 탭, 차트, 통계 공통 기능 |
-| `lotto.js` / `pension.js` | 복권별 번호 생성, 내 번호, 당첨번호, 통계 |
-| `data_lotto.js` / `data.js` | 당첨번호 데이터 (자동 생성) |
-| `fetch_lotto.py` / `fetch_draws.py` | 동행복권 수집 (수동 실행 가능) |
-| `serve.py` | 로컬 서버 + 자동 갱신 |
+| `css/style.css` | 스타일 (라이트/다크) |
+| `js/common.js` | 난수, 저장, 탭, 차트, 통계 공통 기능 |
+| `js/lotto.js` / `js/pension.js` | 복권별 번호 생성, 내 번호, 당첨번호, 통계 |
+| `js/data_lotto.js` / `js/data.js` | 당첨번호 데이터 (자동 생성) |
+| `python/fetch_lotto.py` / `python/fetch_draws.py` | 동행복권 수집 (수동 실행 가능) |
+| `python/serve.py` | 로컬 서버 + 자동 갱신 |
 | `.github/workflows/update.yml` | GitHub Actions 자동 갱신 |
-| `build_data.py` | 비상용: 연금복권 엑셀을 data.js로 변환 |
+| `python/build_data.py` | 비상용: 연금복권 엑셀을 data.js로 변환 |
+| `js/data_excel_backup.js`, `index_pension_only_backup.html` | 예전 버전 백업 |
+| `manifest.json`, `icons/` | 아이폰 홈 화면 추가용 설정과 아이콘 |
 
 ## 데이터 출처 (동행복권 내부 JSON, GET)
 - 연금720+: `/pt720/selectPstPt720WnList.do`. 한 번에 전 회차를 줍니다.

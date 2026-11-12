@@ -1,6 +1,6 @@
 """동행복권에서 로또 6/45 당첨번호를 받아 data_lotto.js 를 갱신한다.
 
-사용법: python fetch_lotto.py
+사용법: python python/fetch_lotto.py
 - 엔드포인트는 한 번에 10회차씩 준다(srchDir=older/latest + 커서).
 - data_lotto.js 가 없으면 1회까지 전부 받는다(약 125회 요청, 요청 사이 0.7초 대기).
 - 있으면 마지막 회차 이후만 받는다(보통 요청 1~2회).
@@ -18,7 +18,7 @@ from fetch_draws import KST, HEADERS as _H
 
 URL = "https://www.dhlottery.co.kr/lt645/selectPstLt645InfoNew.do"
 HEADERS = dict(_H, Referer="https://www.dhlottery.co.kr/lt645/result")
-DATA_JS = pathlib.Path(__file__).with_name("data_lotto.js")
+DATA_JS = pathlib.Path(__file__).resolve().parent.parent / "js" / "data_lotto.js"
 PREFIX = "window.LOTTO = "
 FIRST_DRAW = date(2002, 12, 7)  # 1회 추첨일(토)
 DELAY = 0.7

@@ -20,14 +20,14 @@ jobs:
         with:
           python-version: "3.12"
       - name: 연금720+ 갱신
-        run: python fetch_draws.py
+        run: python python/fetch_draws.py
       - name: 로또 갱신
         if: always()              # 연금이 실패해도 로또는 시도
-        run: python fetch_lotto.py
+        run: python python/fetch_lotto.py
       - name: 변경 시 커밋
         if: always()              # 한쪽만 성공해도 반영
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data.js data_lotto.js
+          git add js/data.js js/data_lotto.js
           git diff --cached --quiet || (git commit -m "당첨번호 자동 갱신" && git push)

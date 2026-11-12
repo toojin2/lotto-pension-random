@@ -1,6 +1,6 @@
 """동행복권에서 연금720+ 전 회차 당첨번호를 받아 data.js 를 갱신한다.
 
-사용법: python fetch_draws.py
+사용법: python python/fetch_draws.py
 - 요청 1회로 전체 회차(조, 1등 번호, 보너스, 추첨일)를 받는다.
 - 응답 검증에 실패하거나 기존보다 회차가 줄면 data.js 를 건드리지 않는다.
 """
@@ -18,7 +18,7 @@ HEADERS = {
     "Referer": "https://www.dhlottery.co.kr/pt720/result",
 }
 KST = timezone(timedelta(hours=9))
-DATA_JS = pathlib.Path(__file__).with_name("data.js")
+DATA_JS = pathlib.Path(__file__).resolve().parent.parent / "js" / "data.js"
 PREFIX = "window.DRAWS = "
 
 

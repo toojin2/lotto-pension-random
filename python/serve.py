@@ -1,6 +1,6 @@
 """로컬 서버 + 자동 갱신 (연금720+, 로또 6/45).
 
-python serve.py [포트=8720]
+python python/serve.py [포트=8720]
 - 시작 시 두 복권 모두 동행복권에서 갱신한다.
 - 마지막 추첨일 + 7일의 추첨 시각(연금 목 19:05, 로또 토 20:35) + 25분이 지나면
   새 회차가 올라올 때까지 30분 간격으로 확인한다. 그 외에는 6시간마다 1회만 확인한다.
@@ -18,7 +18,7 @@ import fetch_draws
 import fetch_lotto
 from fetch_draws import KST
 
-ROOT = pathlib.Path(__file__).parent
+ROOT = pathlib.Path(__file__).resolve().parent.parent  # 사이트 루트 (index.html 위치)
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8720
 
 
