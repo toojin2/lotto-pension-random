@@ -1,6 +1,6 @@
 # 복권 랜덤 번호 (비공식): 로또 6/45 + 연금복권720+
 
-## 실행
+## 로컬 실행
 ```
 python serve.py        # http://localhost:8720
 ```
@@ -8,6 +8,24 @@ python serve.py        # http://localhost:8720
 - 추첨 시각(로또 토 20:35, 연금 목 19:05)이 지나면 새 회차가 올라올 때까지 30분마다 확인합니다. 그 외에는 6시간에 1번만 확인합니다.
 - 브라우저에서 새로고침하면 바로 반영됩니다. js와 html은 캐시하지 않습니다.
 - 바로가기 주소: `#lotto`, `#lotto-saved`, `#lotto-stats`, `#pension`, `#pension-saved`, `#pension-stats`
+
+## 자동 갱신 (GitHub Actions)
+웹에 공개한 사이트(GitHub Pages)는 `serve.py` 없이 GitHub Actions가 당첨번호를 갱신합니다.
+
+- 정해진 시간에 `fetch_draws.py`와 `fetch_lotto.py`를 실행해 동행복권에서 새 회차를 받습니다.
+- 새 회차가 있으면 `data.js`와 `data_lotto.js`를 자동으로 커밋합니다. 커밋되면 Pages가 다시 배포되어 사이트에 반영됩니다.
+- 새 회차가 없으면 커밋하지 않습니다.
+
+| 실행 시각 (KST) | 대상 |
+|---|---|
+| 목 19:30 / 21:30 / 23:30 | 연금720+ (추첨 목 19:05) |
+| 토 21:00 / 23:00 | 로또 6/45 (추첨 토 20:35) |
+| 일 10:00 | 놓친 회차 보충 |
+
+- 설정 파일: `.github/workflows/update.yml`
+- 수동 실행: 저장소 **Actions** 탭 → **당첨번호 갱신** → **Run workflow**
+- GitHub 예약 실행은 수십 분 늦어질 수 있습니다.
+- 한쪽 복권 수집이 실패해도 다른 쪽은 따로 갱신됩니다.
 
 ## 파일
 | 파일 | 역할 |
@@ -19,6 +37,7 @@ python serve.py        # http://localhost:8720
 | `data_lotto.js` / `data.js` | 당첨번호 데이터 (자동 생성) |
 | `fetch_lotto.py` / `fetch_draws.py` | 동행복권 수집 (수동 실행 가능) |
 | `serve.py` | 로컬 서버 + 자동 갱신 |
+| `.github/workflows/update.yml` | GitHub Actions 자동 갱신 |
 | `build_data.py` | 비상용: 연금복권 엑셀을 data.js로 변환 |
 
 ## 데이터 출처 (동행복권 내부 JSON, GET)
